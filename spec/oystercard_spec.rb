@@ -18,7 +18,7 @@ describe OysterCard do
     end
     it "Sets maximum limit on the card" do
       expect{subject.top_up(100)}.to raise_error "Limit of £#{:limit} exceeded: payment rejected."
-    end  
+    end
     it 'Enables a top up with an amount chosen by the user' do
       expect{subject.top_up(20)}.to change {subject.balance}.by(20)
     end
@@ -37,9 +37,9 @@ describe OysterCard do
     it 'requires at least £1 to successfully tap in' do
       subject.top_up(0.9)
       expect{subject.touch_in(:entry_station)}.to raise_error "Insufficient funds"
-    end   
+    end
   end
- 
+
   describe '#touch_out' do
     it { is_expected.to respond_to :touch_out }
     it 'deducts min fare when tapping out' do
@@ -53,11 +53,11 @@ describe OysterCard do
       subject.top_up(min_fare)
       subject.touch_in("Archway")
       subject.touch_out("Borough")
-      expect(subject.journeys.first[:exit]).to eq "Borough"   
+      expect(subject.journeys.first[:exit]).to eq "Borough"
     end
   end
 
-  
+
   describe '#in_journey?' do
     it { is_expected.to respond_to :in_journey? }
     let(:entry_station) { double :entry_station}
@@ -72,7 +72,7 @@ describe OysterCard do
       subject.touch_in(:entry_station)
       expect(subject.entry_station).to eq :entry_station
     end
-  end  
+  end
 
 
   describe 'train station history' do
@@ -93,4 +93,3 @@ describe OysterCard do
   end
 
 end
-
