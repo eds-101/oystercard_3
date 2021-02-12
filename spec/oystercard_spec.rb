@@ -1,10 +1,13 @@
-require 'oystercard.rb'
+require 'oystercard'
 
 describe OysterCard do
 
   describe '#initialize' do
     it "sets an initial balance of 0" do
       expect(subject.balance).to eq 0
+    end
+    it 'checks that card has empty list of journeys by default' do
+      expect(subject.journeys.length).to eq 0
     end
   end
 
@@ -41,7 +44,16 @@ describe OysterCard do
     it { is_expected.to respond_to :touch_out }
     it 'deducts min fare when tapping out' do
       min_fare = OysterCard::MIN_FARE
-      expect { subject.touch_out}.to change{subject.balance}.by(- min_fare)
+      subject.top_up(min_fare)
+      subject.touch_in("Archway")
+      expect { subject.touch_out("Borough") }.to change{subject.balance}.by(- min_fare)
+    end
+    it 'records the exit station on touching out'  do
+      min_fare = OysterCard::MIN_FARE
+      subject.top_up(min_fare)
+      subject.touch_in("Archway")
+      subject.touch_out("Borough")
+      expect(subject.journeys.first[:exit]).to eq "Borough"   
     end
   end
 
@@ -62,9 +74,23 @@ describe OysterCard do
     end
   end  
 
+
+  describe 'train station history' do
+    let(:started_journey){ {entry: entry_station, exit: nil} }
+    let(:completed_journey){ {entry: entry_station, exit: exit_station} }
+    before (:each) do
+      subject.instance_variable_set(:@balance, 2)
+      subject.touch_in(:entry_station)
+    end
+
+    it '#2 touches in and out creates one journey' do
+      subject.top_up(2)
+      subject.touch_in("Archway")
+      subject.touch_out("Barnet")
+      expect(subject.journeys).to include({entry: "Archway" , exit: "Barnet" })
+    end
+
+  end
+
 end
-=begin      
-      subject.top_up(4)
-      subject.touch_in("Barnes")
-      expect (subject.entry_station).to include 'Barnes'
-=end
+

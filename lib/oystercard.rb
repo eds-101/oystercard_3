@@ -1,5 +1,5 @@
 class OysterCard
-  attr_reader :balance, :limit, :entry_station
+  attr_reader :balance, :limit, :entry_station, :exit_station, :journeys
 
   DEFAULT_LIMIT = 90
   MIN_TRAVEL_BALANCE = 1
@@ -10,12 +10,14 @@ class OysterCard
     @limit = DEFAULT_LIMIT
     @in_use = false
     @entry_station = nil
+    @exit_station = nil
+    @journeys = []
   end
 
   def top_up(amount)
-      raise "Limit of £#{:limit} exceeded: payment rejected." if @balance + amount >= @limit
-      if @balance + amount < @limit then @balance += amount
-      end
+    raise "Limit of £#{:limit} exceeded: payment rejected." if @balance + amount >= @limit
+    if @balance + amount < @limit then @balance += amount
+    end
   end
 
   def deduct(amount)
@@ -26,11 +28,14 @@ end
     raise "Insufficient funds" if @balance < MIN_TRAVEL_BALANCE
     @in_use = true
     @entry_station = station
+    started_journey = { entry: station, exit: nil }
+    @journeys << started_journey
   end
 
-  def touch_out
+  def touch_out(exit_station)
     @in_use = false
     deduct(MIN_FARE)
+    @journeys.last[:exit] = exit_station 
   end
 
   def in_journey?
